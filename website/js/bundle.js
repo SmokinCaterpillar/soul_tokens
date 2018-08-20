@@ -42,7 +42,7 @@ var onSale = false;
 
 var priceDict = {};
 
-var metamask_info = "Please, install MetaMask (https://metamask.io/), the Ethereum browser plugin, to buy or sell souls!";
+var metamask_info = "Please, unlock your Metamask wallet to buy or sell souls, and refresh this website. You can find and install Metamask, the Ethereum browser plugin, here: https://metamask.io/";
 
 var withMeta = false;
 
