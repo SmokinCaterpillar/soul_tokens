@@ -24,8 +24,8 @@ This is the git repository for the project hosted on
 
 2. cd to **website** directory, install browserify globally: `(sudo) npm install --global browserify`
 
-3. install ethjs-query and ethjs-contract locally `npm install --save ethjs-query` and
-`npm install --save ethjs-contract`
+3. install ethjs-query and ethjs-contract locally
+`npm install --save web3-eth-contract`, and `npm install --save web3`
 
 4. Make sure your current working directory is still the **website** directory, and create the
 bundle.js via `browserify js/soul.js -o js/bundle.js`

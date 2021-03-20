@@ -11,21 +11,300 @@ console.log('Loading Soul Token script');
  * @param decimals: remaining number of decimals
  * @returns rounded number
  */
-function round(value, decimals){
+function round(value, decimals) {
     var rounder = Math.pow(10, decimals);
     return Math.round(value * rounder) / rounder;
 }
 
 
-var Eth = require('ethjs-query');
-var EthContract = require('ethjs-contract');
+var Contract = require('web3-eth-contract');
 var BigNumber = require('bignumber.js');
 
 var Web3 = require('web3');
 
 // ABI and addresses of both contracts
 const contractAddress = '0x5bF554632a059aE0537a3EEb20Aced49348B8F99';
-const contractAbi = [{"constant":true,"inputs":[{"name":"noSoulMate","type":"address"}],"name":"soulIsOwnedBy","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_amount","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"soulOwner","type":"address"}],"name":"ownsSouls","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"soulsForSale","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_amount","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"soulsSold","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalObol","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"napkinPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"charonsBoat","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"fee","type":"uint256"}],"name":"changeBookingFee","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"noSoulMate","type":"address"}],"name":"transferSoul","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"bookingFee","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"noSoulMate","type":"address"}],"name":"buySoul","outputs":[{"name":"amount","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"noSoulMate","type":"address"}],"name":"soldSoulBecause","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"unit","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"page","type":"uint256"}],"name":"soulBookPage","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"reason","type":"string"},{"name":"price","type":"uint256"}],"name":"sellSoul","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"noSoulMate","type":"address"}],"name":"soldSoulFor","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"newBoat","type":"address"}],"name":"changeBoat","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"obol","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"}],"name":"SoulTransfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}];
+// test net address
+// const contractAddress = '0xa45474876ef1c2b7ced5c7bdc803669cd8a6d61a'
+const contractAbi = [{
+    "constant": true,
+    "inputs": [{"name": "noSoulMate", "type": "address"}],
+    "name": "soulIsOwnedBy",
+    "outputs": [{"name": "", "type": "address"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "name",
+    "outputs": [{"name": "", "type": "string"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": false,
+    "inputs": [{"name": "_spender", "type": "address"}, {
+        "name": "_amount",
+        "type": "uint256"
+    }],
+    "name": "approve",
+    "outputs": [{"name": "", "type": "bool"}],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [{"name": "soulOwner", "type": "address"}],
+    "name": "ownsSouls",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "soulsForSale",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": false,
+    "inputs": [{"name": "_from", "type": "address"}, {
+        "name": "_to",
+        "type": "address"
+    }, {"name": "_amount", "type": "uint256"}],
+    "name": "transferFrom",
+    "outputs": [{"name": "", "type": "bool"}],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "soulsSold",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [{"name": "", "type": "uint8"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "totalObol",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "napkinPrice",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "charonsBoat",
+    "outputs": [{"name": "", "type": "address"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": false,
+    "inputs": [{"name": "fee", "type": "uint256"}],
+    "name": "changeBookingFee",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+}, {
+    "constant": false,
+    "inputs": [{"name": "_to", "type": "address"}, {
+        "name": "noSoulMate",
+        "type": "address"
+    }],
+    "name": "transferSoul",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "bookingFee",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [{"name": "_owner", "type": "address"}],
+    "name": "balanceOf",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": false,
+    "inputs": [{"name": "noSoulMate", "type": "address"}],
+    "name": "buySoul",
+    "outputs": [{"name": "amount", "type": "uint256"}],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{"name": "", "type": "address"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [{"name": "noSoulMate", "type": "address"}],
+    "name": "soldSoulBecause",
+    "outputs": [{"name": "", "type": "string"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "unit",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [{"name": "page", "type": "uint256"}],
+    "name": "soulBookPage",
+    "outputs": [{"name": "", "type": "address"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": false,
+    "inputs": [{"name": "reason", "type": "string"}, {
+        "name": "price",
+        "type": "uint256"
+    }],
+    "name": "sellSoul",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [{"name": "", "type": "string"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": false,
+    "inputs": [{"name": "_to", "type": "address"}, {
+        "name": "_amount",
+        "type": "uint256"
+    }],
+    "name": "transfer",
+    "outputs": [{"name": "", "type": "bool"}],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [{"name": "noSoulMate", "type": "address"}],
+    "name": "soldSoulFor",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [{"name": "_owner", "type": "address"}, {
+        "name": "_spender",
+        "type": "address"
+    }],
+    "name": "allowance",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "constant": false,
+    "inputs": [{"name": "newBoat", "type": "address"}],
+    "name": "changeBoat",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+}, {
+    "constant": true,
+    "inputs": [],
+    "name": "obol",
+    "outputs": [{"name": "", "type": "uint8"}],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "inputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+}, {
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "fallback"
+}, {
+    "anonymous": false,
+    "inputs": [{"indexed": true, "name": "_from", "type": "address"}, {
+        "indexed": true,
+        "name": "_to",
+        "type": "address"
+    }],
+    "name": "SoulTransfer",
+    "type": "event"
+}, {
+    "anonymous": false,
+    "inputs": [{"indexed": true, "name": "_from", "type": "address"}, {
+        "indexed": true,
+        "name": "_to",
+        "type": "address"
+    }, {"indexed": false, "name": "_value", "type": "uint256"}],
+    "name": "Transfer",
+    "type": "event"
+}, {
+    "anonymous": false,
+    "inputs": [{"indexed": true, "name": "_owner", "type": "address"}, {
+        "indexed": true,
+        "name": "_spender",
+        "type": "address"
+    }, {"indexed": false, "name": "_value", "type": "uint256"}],
+    "name": "Approval",
+    "type": "event"
+}];
 
 const nullAddress = "0x0000000000000000000000000000000000000000";
 
@@ -40,18 +319,17 @@ var soulsPerPage = 12;
 var onSale = false;
 
 var priceDict = {};
+var currentAccount;
 
 var metamask_info = "Please, unlock your Metamask wallet to buy or sell souls, and refresh this website. You can find and install Metamask, the Ethereum browser plugin, here: https://metamask.io/";
 
 var withMeta = false;
 
-function createContract(){
-    const eth = new Eth(web3.currentProvider);
-    const contract = new EthContract(eth);
-
-    const SoulToken = contract(contractAbi);
-    soulToken = SoulToken.at(contractAddress);
+function createContract() {
+    Contract.setProvider(web3.currentProvider);
+    soulToken = new Contract(contractAbi, contractAddress);
 }
+
 
 function startApp() {
     // Initialize the contracts
@@ -74,7 +352,7 @@ function startApp() {
 }
 
 
-function startAppNoWeb3(){
+function startAppNoWeb3() {
     // var button = document.getElementById('nextPage');
     // button.addEventListener('click', function() {
     //     alert(metamask_info)
@@ -86,7 +364,7 @@ function startAppNoWeb3(){
     createContract();
 
     var button = document.getElementById('sellSoulButton');
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
         alert(metamask_info)
     });
 
@@ -101,28 +379,28 @@ function startAppNoWeb3(){
 }
 
 
-function listenForNextPageClicks(){
+function listenForNextPageClicks() {
     var button = document.getElementById('nextPage');
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
         turnPage(1)
     });
 }
 
 
-function listenForPreviousPageClicks(){
+function listenForPreviousPageClicks() {
     var button = document.getElementById('previousPage');
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
         turnPage(-1)
     });
 }
 
 
-function turnPage(howMany){
+function turnPage(howMany) {
     currentPage += howMany;
     //code before the pause
     var page = currentPage;
     document.getElementById('pageNumber').innerHTML = "<mark>Page " + page + "</mark>";
-    setTimeout(function(){
+    setTimeout(function () {
         getSoulBook(page)
     }, 200);
 
@@ -130,54 +408,49 @@ function turnPage(howMany){
 
 
 function listenForSoulSellsClicks() {
-  var button = document.getElementById('sellSoulButton');
-  button.addEventListener('click', function() {
+    var button = document.getElementById('sellSoulButton');
+    button.addEventListener('click', function () {
 
-      var ether = document.getElementById("soulPrice").value;
-      var inWei = web3.toWei(ether, 'ether');
-      var bookingFeeInWei = web3.toWei(bookingFee, 'ether');
-      var reason = document.getElementById("soulComment").value;
+        var ether = document.getElementById("soulPrice").value;
+        var inWei = web3.utils.toWei(ether, 'ether');
+        var bookingFeeInWei = web3.utils.toWei(String(bookingFee), 'ether');
+        var reason = document.getElementById("soulComment").value;
 
-      console.log('Clicked soul selling for ' + inWei + ' wie because: ' + reason);
+        console.log('Clicked soul selling for ' + inWei + ' Wei because: ' + reason + 'Using booking Fee' + bookingFeeInWei);
 
-      var rLength = reason.length;
-      if (onSale){
-          alert('You did put your soul already on sale! Sneaky, but sorry, you can sell your soul only once!');
-      } else if (rLength === 0){
-          alert('C`mon you need a reason to sell your soul!');
-      } else if(rLength > 333) {
-          alert('Your reason is too long with ' + rLength + ' characters, please use 333 or less! It must fit on a napkin!');
-      } else if(inWei <= 10){
-          alert('Your soul has to have a price, you cannot give it away for free or even pay for giving it away. What is wrong with you?');
-      } else{
-          var gas = 200000 + 1000 * rLength;
-          var account = web3.eth.coinbase;
-          if (account === null || account === nullAddress) {
-              alert("Please, unlock your MetaMask wallet, refresh this website, and try again.");
-          } else {
-              console.log('Buying with account ' + account);
-              soulToken.sellSoul(reason, inWei, {
-                  from: account,
-                  value: bookingFeeInWei,
-                  gas: gas
-              }).then(function (txHash) {
-                  console.log('Transaction sent');
-                  console.dir(txHash);
-              });
+        var rLength = reason.length;
+        if (onSale) {
+            alert('You did put your soul already on sale! Sneaky, but sorry, you can sell your soul only once!');
+        } else if (rLength === 0) {
+            alert('C`mon you need a reason to sell your soul!');
+        } else if (rLength > 333) {
+            alert('Your reason is too long with ' + rLength + ' characters, please use 333 or less! It must fit on a napkin!');
+        } else if (inWei <= 10) {
+            alert('Your soul has to have a price, you cannot give it away for free or even pay for giving it away. What is wrong with you?');
+        } else {
+            if (currentAccount === null || currentAccount === nullAddress) {
+                alert("Please, unlock your MetaMask wallet, refresh this website, and try again.");
+            } else {
+                console.log('Selling with account ' + currentAccount);
+                soulToken.methods.sellSoul(reason, inWei).send({
+                    from: currentAccount,
+                    value: bookingFeeInWei,
+                }).then(function (txHash) {
+                    console.log('Transaction sent');
+                    console.dir(txHash);
+                });
 
-          }
-      }
-  })
+            }
+        }
+    })
 }
 
 
-function updateTotalSupply(){
+function updateTotalSupply() {
 
-    var charonsNapkins;
     var napkins;
 
-    soulToken.balanceOf(contractAddress).then(function (results) {
-        charonsNapkins = results[0];
+    soulToken.methods.balanceOf(contractAddress).call().then(function (charonsNapkins) {
         console.log('Charons napkins ' + napkins);
         charonsNapkins = new BigNumber(charonsNapkins);
         napkins = totalSupply.minus(charonsNapkins).dividedBy(unit);
@@ -187,7 +460,7 @@ function updateTotalSupply(){
         document.getElementById('totalSupply').innerHTML = htmlText;
 
         htmlText = "Hurry, because Charon only sells 144000 Soul Napkins and there are only " +
-                   "<b>" + (144000 - napkins) + "</b> napkins left!";
+            "<b>" + (144000 - napkins) + "</b> napkins left!";
 
         document.getElementById('supplyLeft').innerHTML = htmlText;
     });
@@ -195,31 +468,25 @@ function updateTotalSupply(){
 }
 
 
-function checkOnSale(){
-    var ownReason;
-    soulToken.soldSoulBecause(web3.eth.coinbase).then(function (results) {
-        ownReason = results[0];
+function checkOnSale() {
+    soulToken.methods.soldSoulBecause(currentAccount).call().then(function (ownReason) {
         console.log('ownReason ' + ownReason);
         onSale = ownReason.length > 0;
     });
 }
 
 
-function updateBalances(){
-
-    var napkins;
-    var souls;
+function updateBalances() {
     var htmlText;
-    soulToken.balanceOf(web3.eth.coinbase).then(function (results) {
-        napkins = results[0];
+    console.log("Updating Balances")
+    soulToken.methods.balanceOf(currentAccount).call().then(function (napkins) {
         console.log('napkins ' + napkins);
         napkins = new BigNumber(napkins).dividedBy(unit);
 
-        soulToken.ownsSouls(web3.eth.coinbase).then(function (results) {
-            souls = results[0];
+        soulToken.methods.ownsSouls(currentAccount).call().then(function (souls) {
             console.log('souls ' + souls);
 
-            htmlText = "You own "+ souls + " soul(s) and " + napkins + " SOUL tokens, i.e. napkins.";
+            htmlText = "You own " + souls + " soul(s) and " + napkins + " SOUL tokens, i.e. napkins.";
             document.getElementById('balance').innerHTML = htmlText
         });
     }).catch(function (error) {
@@ -231,73 +498,71 @@ function updateBalances(){
 }
 
 
-function getWrittenNapkinSold(index, soul, reason, priceInEth, owner){
+function getWrittenNapkinSold(index, soul, reason, priceInEth, owner) {
     var half = soul.length / 2;
     var soul1Half = soul.substr(0, half);
     var soul2Half = soul.substr(half + 1);
     var owner1Half = owner.substr(0, half);
     var owener2Half = owner.substr(half + 1);
-    var htmlText="<div class='stacker col-lg-3 col-sm-3'>" +
-                    "<a class='portfolio-box text-faded text-center' id=" + soul + "><br>" +
-                      "<h5>SOUL #" + index + "</h5>" +
-                      "<div class='selector'><p> <i>" + reason + "</i></p></div>" +
-                      "<p>" +
-                        "<b>Owned by " + owner.substr(0, 7) + "..." +
-                        "<br>Bought for " + priceInEth + " ETH</b>" +
-                      "</p>" +
-                      "<div class='portfolio-box-caption'>" +
-                        "<div class='portfolio-box-caption-content'>" +
-                          "<div class='project-category text-faded'>" +
-                            "Soul of <br>&quot" + soul1Half + "<br>" + soul2Half + "&quot" +
-                          "</div>" +
-                          "<div class='project-name'>" +
-                            "Already Sold to <br><small>&quot" + owner1Half + "<br>" + owener2Half + "&quot</small>" +
-                          "</div>" +
-                        "</div>" +
-                      "</div>" +
-                    "</a>" +
-                "</div>";
+    var htmlText = "<div class='stacker col-lg-3 col-sm-3'>" +
+        "<a class='portfolio-box text-faded text-center' id=" + soul + "><br>" +
+        "<h5>SOUL #" + index + "</h5>" +
+        "<div class='selector'><p> <i>" + reason + "</i></p></div>" +
+        "<p>" +
+        "<b>Owned by " + owner.substr(0, 7) + "..." +
+        "<br>Bought for " + priceInEth + " ETH</b>" +
+        "</p>" +
+        "<div class='portfolio-box-caption'>" +
+        "<div class='portfolio-box-caption-content'>" +
+        "<div class='project-category text-faded'>" +
+        "Soul of <br>&quot" + soul1Half + "<br>" + soul2Half + "&quot" +
+        "</div>" +
+        "<div class='project-name'>" +
+        "Already Sold to <br><small>&quot" + owner1Half + "<br>" + owener2Half + "&quot</small>" +
+        "</div>" +
+        "</div>" +
+        "</div>" +
+        "</a>" +
+        "</div>";
     return htmlText
 }
 
 
-function getWrittenNapkinForSale(index, soul, reason, priceInEth){
+function getWrittenNapkinForSale(index, soul, reason, priceInEth) {
     var half = soul.length / 2;
     var soul1Half = soul.substr(0, half);
     var soul2Half = soul.substr(half + 1);
-    var htmlText="<div class='stacker col-lg-3 col-sm-3'>" +
-                    "<a class='portfolio-box2 text-faded text-center handover'><br>" +
-                      "<h5>SOUL #" + index + "</h5>" +
-                      "<div class='selector'><p> <i>" + reason + "</i></p></div>" +
-                      "<p><b>Available for " + priceInEth + " ETH</b></p>" +
-                      "<div class='portfolio-box2-caption handover' id=" + soul + ">" +
-                        "<div class='portfolio-box2-caption-content handover' id=b" + soul + ">" +
-                          "<div class='project-category text-faded handover' id=c" + soul + ">" +
-                            "Soul of <br>&quot" + soul1Half + "<br>" + soul2Half + "&quot" +
-                          "</div>" +
-                          "<div class='project-name' id=n" + soul + ">" +
-                            "For Sale:<br>Only " + priceInEth + " ETH!" +
-                          "</div>" +
-                        "</div>" +
-                      "</div>" +
-                    "</a>" +
-                "</div>";
+    var htmlText = "<div class='stacker col-lg-3 col-sm-3'>" +
+        "<a class='portfolio-box2 text-faded text-center handover'><br>" +
+        "<h5>SOUL #" + index + "</h5>" +
+        "<div class='selector'><p> <i>" + reason + "</i></p></div>" +
+        "<p><b>Available for " + priceInEth + " ETH</b></p>" +
+        "<div class='portfolio-box2-caption handover' id=" + soul + ">" +
+        "<div class='portfolio-box2-caption-content handover' id=b" + soul + ">" +
+        "<div class='project-category text-faded handover' id=c" + soul + ">" +
+        "Soul of <br>&quot" + soul1Half + "<br>" + soul2Half + "&quot" +
+        "</div>" +
+        "<div class='project-name' id=n" + soul + ">" +
+        "For Sale:<br>Only " + priceInEth + " ETH!" +
+        "</div>" +
+        "</div>" +
+        "</div>" +
+        "</a>" +
+        "</div>";
     return htmlText
 }
 
 
-function getSoulBook(page){
+function getSoulBook(page) {
     var soulsForSale;
     var soulsSold;
     var totalSouls;
     var htmlText;
 
-    soulToken.soulsForSale().then(function (results) {
-        soulsForSale = results[0];
+    soulToken.methods.soulsForSale().call().then(function (soulsForSale) {
         console.log('soulsForSale ' + soulsForSale);
 
-        soulToken.soulsSold().then(function (results) {
-            soulsSold = results[0];
+        soulToken.methods.soulsSold().call().then(function (soulsSold) {
             console.log('soulsSold ' + soulsSold);
 
             htmlText = "<mark>" + soulsForSale + " soul(s) for sale and " + soulsSold + " soul(s) sold. " +
@@ -306,7 +571,7 @@ function getSoulBook(page){
                 "to see that you are the new owner of that soul.</mark>";
             document.getElementById('status').innerHTML = htmlText;
 
-            totalSouls  = Number(soulsSold) + Number(soulsForSale);
+            totalSouls = Number(soulsSold) + Number(soulsForSale);
             totalPages = Math.ceil(totalSouls / soulsPerPage);
             console.log('Soul book has pages ' + totalPages + ' and souls ' + totalSouls);
             if (page <= 0) {
@@ -338,9 +603,9 @@ function lookUpSouls(page, totalSouls) {
 }
 
 
-document.querySelector('body').addEventListener('click', function(event) {
+document.querySelector('body').addEventListener('click', function (event) {
     var key = event.target.id;
-    if (key.substr(1) in priceDict){
+    if (key.substr(1) in priceDict) {
         key = key.substr(1)
     }
     if (key in priceDict) {
@@ -351,14 +616,14 @@ document.querySelector('body').addEventListener('click', function(event) {
             var soulPrice = priceDict[key];
 
             console.log("Buying soul " + key + " for " + soulPrice + " Wei");
-            var account = web3.eth.coinbase;
+            var account = currentAccount;
             if (account === null || account === nullAddress) {
                 alert("Please, unlock your MetaMask wallet, refresh this website, and try again.");
             } else {
 
                 console.log('Buying with account ' + account);
 
-                soulToken.buySoul(key, {
+                soulToken.methods.buySoul(key).send({
                     from: account,
                     value: soulPrice,
                     gas: 200000
@@ -378,19 +643,19 @@ document.querySelector('body').addEventListener('click', function(event) {
 /**
  * Encodes
  * & --> &amp;
-     < --> &lt;
-     > --> &gt;
-     " --> &quot;
-     ' --> &#x27;     &apos; not recommended because its not in the HTML spec (See: section 24.4.1) &apos; is in the XML and XHTML specs.
-     / --> &#x2F;     forward slash is included as it helps end an HTML entity
+ < --> &lt;
+ > --> &gt;
+ " --> &quot;
+ ' --> &#x27;     &apos; not recommended because its not in the HTML spec (See: section 24.4.1) &apos; is in the XML and XHTML specs.
+ / --> &#x2F;     forward slash is included as it helps end an HTML entity
  */
-function xss_prevention(userString){
-     userString = userString.replace('&', '&amp').replace('<', '&lt').replace('>', '&gt');
-     return userString.replace('"', '&quot').replace("'", "&#x27").replace("/", "&#x2F");
+function xss_prevention(userString) {
+    userString = userString.replace('&', '&amp').replace('<', '&lt').replace('>', '&gt');
+    return userString.replace('"', '&quot').replace("'", "&#x27").replace("/", "&#x2F");
 }
 
 
-function loadIndividualSoul(soulIndex){
+function loadIndividualSoul(soulIndex) {
     var soul;
     var reason;
     var owner;
@@ -398,34 +663,30 @@ function loadIndividualSoul(soulIndex){
     var priceInEth;
     var htmlText;
 
-    soulToken.soulBookPage(soulIndex).then(function (results) {
-        soul = results[0];
+    soulToken.methods.soulBookPage(soulIndex).call().then(function (soul) {
         console.log('Found soul ' + soul);
 
-        soulToken.soldSoulBecause(soul).then(function (results) {
-            reason = results[0];
+        soulToken.methods.soldSoulBecause(soul).call().then(function (reason) {
             reason = xss_prevention(reason);
             console.log('Found reason ' + reason);
 
-            if (reason.length > 333){
-                reason = reason.substr(0, 333) +"...";
+            if (reason.length > 333) {
+                reason = reason.substr(0, 333) + "...";
             }
-            if (reason.length > 111){
+            if (reason.length > 111) {
                 reason = reason
             } else {
                 reason = "<br>" + reason
             }
 
 
-            soulToken.soldSoulFor(soul).then(function (results) {
-                price = results[0];
+            soulToken.methods.soldSoulFor(soul).call().then(function (price) {
                 console.log('Found price ' + price);
 
-                soulToken.soulIsOwnedBy(soul).then(function (results) {
-                    owner = results[0];
+                soulToken.methods.soulIsOwnedBy(soul).call().then(function (owner) {
                     console.log('Found owner ' + owner);
 
-                    priceInEth = web3.fromWei(price, 'ether');
+                    priceInEth = web3.utils.fromWei(price, 'ether');
                     priceInEth = round(priceInEth, 4);
 
                     if (owner === nullAddress) {
@@ -444,19 +705,23 @@ function loadIndividualSoul(soulIndex){
 }
 
 
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
 
-  // Check if Web3 has been injected by MetaMask:
-  if (typeof web3 !== 'undefined') {
-    // You have a web3 plugin, Start the DApp
-      web3 = new Web3(web3.currentProvider);
-      startApp();
-  } else {
-      console.log('You need a Web3 plugin like MetaMask for your browser to trade souls on this website.\n' +
-          'Visit https://metamask.io/ to install the plugin.');
-      web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/a3QVb3vG9t6bM8lE4mC3'))
-      startAppNoWeb3();
-  }
+    // Check if Web3 has been injected by MetaMask:
+    if (window.ethereum) {
+        // You have a web3 plugin, Start the DApp
+        web3 = new Web3(window.ethereum);
+        ethereum.enable().then(function (accounts) {
+            currentAccount = accounts[0]
+            console.log("Current account " + currentAccount)
+            startApp();
+        });
+    } else {
+        console.log('You need a Web3 plugin like MetaMask for your browser to trade souls on this website.\n' +
+            'Visit https://metamask.io/ to install the plugin.');
+        web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/a3QVb3vG9t6bM8lE4mC3'))
+        startAppNoWeb3();
+    }
 });
 
 
