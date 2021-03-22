@@ -432,10 +432,12 @@ function listenForSoulSellsClicks() {
             if (currentAccount === null || currentAccount === nullAddress) {
                 alert("Please, unlock your MetaMask wallet, refresh this website, and try again.");
             } else {
-                console.log('Selling with account ' + currentAccount);
+                var gas = 250000 + 1000 * rLength;
+                console.log('Selling with account ' + currentAccount + ' using gas ' + gas);
                 soulToken.methods.sellSoul(reason, inWei).send({
                     from: currentAccount,
                     value: bookingFeeInWei,
+                    gas: gas
                 }).then(function (txHash) {
                     console.log('Transaction sent');
                     console.dir(txHash);
