@@ -38,4 +38,4 @@ called to create a new bundle.
 
 ### Copyright
 
-Copyright 2017 Robert Meyer, all rights reserved!
+Copyright 2017-2023 Robert Meyer, all rights reserved!
