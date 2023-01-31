@@ -721,7 +721,7 @@ window.addEventListener('load', function () {
     } else {
         console.log('You need a Web3 plugin like MetaMask for your browser to trade souls on this website.\n' +
             'Visit https://metamask.io/ to install the plugin.');
-        web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/a3QVb3vG9t6bM8lE4mC3'))
+        web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/3ab514ae083f4b1d80da8422d4b0e7d3'))
         startAppNoWeb3();
     }
 });
